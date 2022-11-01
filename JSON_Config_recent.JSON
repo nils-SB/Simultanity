@@ -1,0 +1,18 @@
+{
+  "simulation": {
+    "start" : 202001010000,
+    "end": 202012312350,
+    "station": "angermuende",
+    "include_raw_data": true,
+    "south": false,
+    "15min": true,
+    "save": "20_ew",
+    "historic": false
+  },
+  "database" : {
+    "hostname" : "localhost",
+    "dbname": "SimultanityDB",
+    "uname": "root",
+    "pwd": "root"
+  }
+}

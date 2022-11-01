@@ -1,0 +1,18 @@
+{
+  "simulation": {
+    "start" : 201001010000,
+    "end": 201912312350,
+    "station": "luedenscheid",
+    "include_raw_data": true,
+    "south": true,
+    "15min": false,
+    "save": "historical",
+    "historic": true
+  },
+  "database" : {
+    "hostname" : "localhost",
+    "dbname": "SimultanityDB",
+    "uname": "root",
+    "pwd": "root"
+  }
+}

@@ -145,9 +145,89 @@ class nordex(object):
         return wind_speed
 
 
+class enercon(object):
+    def output(self, wind_speed, hub_height, station_height=8, height_exp=0.10):
+        koeff = (hub_height / station_height) ** height_exp  # Hellmannscher Höhenexponent 0.16 für Küste
+        # koeff = 1/math.log(station_height/0.2)*math.log(hub_height/0.2)
+        wind_speed['wind_speed_hubheight'] = wind_speed['wind_speed'] * koeff
+        POWER_CURVE = {
+            0: 0,
+            1: 0,
+            2: 14,
+            2.5: 46,
+            3: 94,
+            3.5: 158,
+            4: 242,
+            4.5: 348,
+            5: 479,
+            5.5: 640,
+            6: 828,
+            6.5: 1038,
+            7: 1281,
+            7.5: 1557,
+            8: 1863,
+            8.5: 2191,
+            9: 2528,
+            9.5: 2859,
+            10: 3164,
+            10.5: 3428,
+            11: 3638,
+            11.5: 3790,
+            12: 3890,
+            12.5: 3948,
+            13: 3979,
+            13.5: 3993,
+            14: 4000,
+            14.5: 4000,
+            15: 4000,
+            15.5: 4000,
+            16: 4000,
+            16.5: 4000,
+            17: 4000,
+            17.5: 4000,
+            18: 4000,
+            18.5: 4000,
+            19: 4000,
+            19.5: 4000,
+            20: 4000,
+            20.5: 4000,
+            21: 3998,
+            21.5: 3989,
+            22: 3970,
+            22.5: 3938,
+            23: 3886,
+            23.5: 3810,
+            24: 3702,
+            24.5: 3561,
+            25: 3386,
+            25.5: 3192,
+            26: 2965,
+            26.5: 2719,
+            27: 2238,
+            27.5: 1902,
+            28: 1690,
+            28.5: 1430,
+            29: 1185,
+            29.5: 962,
+            30: 768,
+        }
+        wind_speed.loc[(wind_speed['wind_speed_hubheight'] <= 3), 'WEA_Power'] = POWER_CURVE.get(0)
+        for j in range(2 * 3, 2 * 30):
+            i = j / 2
+            p_i = POWER_CURVE.get(i)
+            p_i1 = POWER_CURVE.get((i + 0.5))
+            delta = p_i1 - p_i
+            wind_speed.loc[(wind_speed['wind_speed_hubheight'] >= i) & (
+                    wind_speed['wind_speed_hubheight'] <= (i + 1)), 'WEA_Power'] = POWER_CURVE.get(i) + (wind_speed[
+                                                                                                             'wind_speed_hubheight'] - i) * delta
+        wind_speed.loc[(wind_speed['wind_speed_hubheight'] >= 25), 'WEA_Power'] = POWER_CURVE.get(0)
+        return wind_speed
+
+
 _WEA_TYPES = {
     'SG 6.6-170': siemens,
     'Nordex N149/5.7': nordex,
+    'E-126EP3': enercon,
 }
 
 
@@ -156,6 +236,7 @@ def run_model(data, hub_height, windturbine, height_exp=0.10):
     WEA = WEA_class()
     out = WEA.output(wind_speed=data, hub_height=hub_height, height_exp=height_exp)
     return out
+
 
 def quater_hour(data_frame):
     re_df = pd.DataFrame()
